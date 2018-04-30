@@ -29,6 +29,7 @@
     "jquery": "3.3.1",
     "morgan": "1.9.0",
     "node-sass": "4.0.0",
+    "pg": "7.4.1",
     "sass-loader": "7.0.1",
     "semantic-ui": "2.3.1",
     "style-loader": "0.21.0",

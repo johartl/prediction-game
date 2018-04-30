@@ -8,6 +8,7 @@ const path = require('path');
 const config = require('./config');
 const logger = require('./logger');
 const Api = require('./api');
+const db = require('./db');
 
 const appRoot = path.resolve(__dirname, '..', 'app');
 const staticFilesDir = path.resolve(appRoot, 'dist');
@@ -39,29 +40,39 @@ class Server {
         this.app.use(fallback(path.resolve(staticFilesDir, 'index.html')));
     }
 
+    init() {
+        return db.connect().then(() => logger.info('Connected to database'));
+    }
+
     start() {
         if (this.server) {
             console.warn('Requested to start server but server is already running');
         }
         logger.info('Starting server');
-        this.server = this.app.listen(config.listenPort, config.listenHost, () => {
-            logger.info(`Server listening on ${config.listenHost}:${config.listenPort}`)
+        this.init().then(() => {
+            this.server = this.app.listen(config.listenPort, config.listenHost, () => {
+                logger.info(`Server listening on ${config.listenHost}:${config.listenPort}`)
+            });
+
+            // Keep track of open connections
+            this.server.on('connection', (socket) => {
+                const socketId = this.globalSocketId++;
+                this.sockets.set(socketId, socket);
+
+                // Remove connection after it has been closed
+                socket.on('close', () => this.sockets.delete(socketId));
+            });
+
+            const STOP_SIGNALS = ['SIGHUP', 'SIGINT', 'SIGTERM'];
+            STOP_SIGNALS.forEach(signal => process.on(signal, () => {
+                logger.info(`Received ${signal} signal`);
+                this.stop();
+            }));
+
+        }).catch(() => {
+            logger.error('Failed to start server - Killing process now');
+            process.exit(1);
         });
-
-        // Keep track of open connections
-        this.server.on('connection', (socket) => {
-            const socketId = this.globalSocketId++;
-            this.sockets.set(socketId, socket);
-
-            // Remove connection after it has been closed
-            socket.on('close', () => this.sockets.delete(socketId));
-        });
-
-        const STOP_SIGNALS = ['SIGHUP', 'SIGINT', 'SIGTERM'];
-        STOP_SIGNALS.forEach(signal => process.on(signal, () => {
-            logger.info(`Received ${signal} signal`);
-            this.stop();
-        }));
     }
 
     stop() {
