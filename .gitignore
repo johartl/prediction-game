@@ -1,4 +1,6 @@
 .idea
 node_modules
 npm-debug.log
-server/config.local.js
+/server/config.local.js
+/app/lib/semantic
+/app/dist

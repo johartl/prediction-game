@@ -2,11 +2,15 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const morgan = require('morgan');
 const compression = require('compression');
+const fallback = require('express-history-api-fallback');
+const path = require('path');
 
 const config = require('./config');
 const logger = require('./logger');
 const Api = require('./api');
 
+const appRoot = path.resolve(__dirname, '..', 'app');
+const staticFilesDir = path.resolve(appRoot, 'dist');
 
 class Server {
     constructor() {
@@ -31,7 +35,8 @@ class Server {
         this.api = new Api(this);
         this.app.use('/api', this.api.getRouter());
 
-        this.app.get('/', this.getServerInfo.bind(this));
+        this.app.use('/', express.static(staticFilesDir));
+        this.app.use(fallback(path.resolve(staticFilesDir, 'index.html')));
     }
 
     start() {
@@ -87,10 +92,6 @@ class Server {
             logger.error('Unable to gracefully stop server within timeout - Killing process now');
             process.exit(1);
         }, 3000);
-    }
-
-    getServerInfo(req, res) {
-        res.status(200).send('Server running');
     }
 }
 
