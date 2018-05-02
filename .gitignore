@@ -4,3 +4,4 @@ npm-debug.log
 /server/config.local.js
 /app/lib/semantic
 /app/dist
+/server/jwt.key

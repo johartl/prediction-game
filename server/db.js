@@ -38,7 +38,7 @@ class Database {
 
     getRanking() {
         const text = `
-            select id, rank, username, score 
+            select id, rank, login, score 
             from ranking
         `;
         return this.queryMany({name: 'ranking', text});
@@ -55,20 +55,20 @@ class Database {
 
     getUser(userId) {
         const text = `
-            select id, username
+            select id, login
             from "user"
             where id = $1
         `;
         return this.queryOne({name: 'user', text, values: [userId]});
     }
 
-    getUserLogin(username) {
+    getUserLogin(login) {
         const text = `
-            select id, pwhash, pwsalt
+            select id, login, password
             from "user"
-            where username ilike = $1
+            where login ilike $1
         `;
-        return this.queryOne({name: 'user-login', text, values: [username]});
+        return this.queryOne({name: 'user-login', text, values: [login]});
     }
 
     getUserTips(userId, before = null) {
@@ -96,7 +96,7 @@ class Database {
 
     getMatchTips(matchId, userId = null) {
         let text = `
-            select u.id, u.username, t.score_a, t.score_b, t.points
+            select u.id, u.login, t.score_a, t.score_b, t.points
             from "user" u, tip t, team ta, team tb
             where 
                 t.user_id = u.id and 
@@ -126,6 +126,15 @@ class Database {
                 s.id = $1
         `;
         return this.queryOne({name: 'match', text, values: [matchId]});
+    }
+
+    insertUser(login, password) {
+        const text = `
+            insert into "user" (login, password, created_at)
+            values ($1, $2, now())
+            returning id
+        `;
+        return this.queryOne({name: 'insert-user', text, values: [login, password]}).then(user => user.id);
     }
 }
 

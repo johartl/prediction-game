@@ -1,8 +1,7 @@
 create table "user" (
   id serial,
-  username text not null,
-  pwhash text not null,
-  pwsalt text not null,
+  login text not null,
+  password text not null,
   created_at timestamp with time zone,
 
   primary key (id)
@@ -47,7 +46,7 @@ create view ranking as (
   select
     u.id,
     rank() over (partition by u.id order by sum(t.points) desc) rank,
-    u.username,
+    u.login,
     sum(t.points) as score
   from
     "user" u,
@@ -59,6 +58,6 @@ create view ranking as (
     t.points <> null
   group by
     u.id,
-    u.username
+    u.login
   order by rank
 );
