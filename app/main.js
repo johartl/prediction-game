@@ -8,6 +8,14 @@ import VueRouter from 'vue-router';
 // Import main style sheet
 import 'styles/style.scss';
 
+// Import services
+import {default as api} from './services/api';
+import {default as userService} from './services/user';
+
+if (BUILD_ENV === 'dev') {
+    Object.assign(window, {api, userService});
+}
+
 // Import components
 import 'components/app';
 import 'components/nav-menu';

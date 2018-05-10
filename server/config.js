@@ -14,7 +14,7 @@ module.exports = {
         password: 'pleasedonttellanyone',
         port: 3211
     },
-    jwtSigningOptions: {
+    jwtOptions: {
         algorithm: 'HS256',
         expiresIn: '24h',
     },
