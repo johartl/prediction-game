@@ -1,4 +1,6 @@
-import api from './api';
+import {ReplaySubject} from 'rxjs/ReplaySubject'
+
+import {apiService} from './api';
 
 const AUTH_STORAGE_KEY = 'auth';
 
@@ -6,6 +8,7 @@ class UserService {
 
     constructor() {
         this.user = null;
+        this.authStatusSubject = new ReplaySubject(1);
     }
 
     isLoggedIn() {
@@ -16,12 +19,19 @@ class UserService {
         return this.user;
     }
 
+    getAuthObservable() {
+        return this.authStatusSubject.asObservable();
+    }
+
+    getAuthPromise() {
+        return this.getAuthObservable().first().toPromise();
+    }
+
     authenticate() {
         const token = window.localStorage.getItem(AUTH_STORAGE_KEY);
-        if (!token) {
-            return Promise.reject();
-        }
-        return api.authenticate(token).then(({user, token}) => {
+        const authCall = token ? apiService.authenticate(token) : Promise.reject();
+
+        return authCall.then(({user, token}) => {
             this.storeAuthData(user, token);
             return user;
         }).catch(() => {
@@ -31,7 +41,7 @@ class UserService {
     }
 
     login(login, password) {
-        return api.login({login, password}).then(({user, token}) => {
+        return apiService.login({login, password}).then(({user, token}) => {
             this.storeAuthData(user, token);
             return user;
         }).catch(error => {
@@ -46,15 +56,17 @@ class UserService {
 
     storeAuthData(user, token) {
         this.user = user;
-        api.setAuthToken(token);
+        apiService.setAuthToken(token);
         window.localStorage.setItem(AUTH_STORAGE_KEY, token);
+        this.authStatusSubject.next(user);
     }
 
     clearAuthData() {
         this.user = null;
-        api.setAuthToken(null);
+        apiService.setAuthToken(null);
         window.localStorage.removeItem(AUTH_STORAGE_KEY);
+        this.authStatusSubject.next(false);
     }
 }
 
-export default new UserService();
+export const userService = new UserService();

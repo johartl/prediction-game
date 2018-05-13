@@ -1,44 +1,42 @@
 // Import libraries
+import Vue from 'vue';
 import 'lib/semantic/dist/semantic';
 import 'lib/semantic/dist/semantic.min.css';
 import 'jquery'
-import Vue from 'vue';
-import VueRouter from 'vue-router';
+import 'rxjs/add/operator/first';
 
 // Import main style sheet
 import 'styles/style.scss';
 
+import {router} from 'router';
+
 // Import services
-import {default as api} from './services/api';
-import {default as userService} from './services/user';
+import {apiService} from './services/api';
+import {userService} from './services/user';
+import {alertService} from './services/alert';
+
+const services = {apiService, userService, alertService};
 
 if (BUILD_ENV === 'dev') {
-    Object.assign(window, {api, userService});
+    Object.assign(window, services);
 }
 
 // Import components
 import 'components/app';
 import 'components/nav-menu';
-
-import {default as TipsComponent} from 'components/tips';
-import {default as RankingComponent} from 'components/ranking';
-import {default as ScheduleComponent} from 'components/schedule';
-import {default as RulesComponent} from 'components/rules';
-
-// Configure router
-Vue.use(VueRouter);
-
-const router = new VueRouter({
-    mode: 'history',
-    routes: [
-        {path: '/tips', component: TipsComponent},
-        {path: '/ranking', component: RankingComponent},
-        {path: '/schedule', component: ScheduleComponent},
-        {path: '/rules', component: RulesComponent},
-    ]
-});
+import 'components/alert';
+import 'components/tips';
+import 'components/ranking';
+import 'components/schedule';
+import 'components/rules';
+import 'components/login';
+import 'components/signup';
+import 'components/dashboard';
+import 'components/impress';
 
 // Bootstrap app
 const app = new Vue({
-    router: router
-}).$mount('#app');
+    el: '#app',
+    router,
+    provide: services
+});
