@@ -6,6 +6,7 @@ import {default as TipsComponent} from 'components/tips';
 import {default as RankingComponent} from 'components/ranking';
 import {default as ScheduleComponent} from 'components/schedule';
 import {default as RulesComponent} from 'components/rules';
+import {default as ProfileComponent} from 'components/profile';
 import {default as LoginComponent} from 'components/login';
 import {default as SignupComponent} from 'components/signup';
 import {default as DashboardComponent} from 'components/dashboard';
@@ -23,6 +24,7 @@ export const router = new VueRouter({
         {path: '/ranking', component: RankingComponent, meta: {requiresAuth: true}},
         {path: '/schedule', component: ScheduleComponent, meta: {requiresAuth: true}},
         {path: '/rules', component: RulesComponent, meta: {requiresAuth: true}},
+        {path: '/profile/:login', component: ProfileComponent, name: 'profile', meta: {requiresAuth: true}},
         {path: '/login', component: LoginComponent, name: 'login', meta: {requiresNoAuth: true}},
         {path: '/signup', component: SignupComponent, meta: {requiresNoAuth: true}},
         {path: '/impress', component: ImpressComponent}

@@ -29,6 +29,7 @@ import 'components/tips';
 import 'components/ranking';
 import 'components/schedule';
 import 'components/rules';
+import 'components/profile';
 import 'components/login';
 import 'components/signup';
 import 'components/dashboard';

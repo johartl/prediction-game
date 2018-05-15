@@ -47,15 +47,11 @@ create view ranking as (
     u.id,
     rank() over (partition by u.id order by sum(t.points) desc) rank,
     u.login,
-    sum(t.points) as score
+    sum(coalesce(t.points, 0)) as score
   from
-    "user" u,
-    tip t,
-    schedule s
-  where
-    u.id = t.user_id and
-    s.id = t.match_id and
-    t.points <> null
+    "user" u
+    left join tip t on u.id = t.user_id
+    left join schedule s on s.id = t.match_id
   group by
     u.id,
     u.login

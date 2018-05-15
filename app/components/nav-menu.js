@@ -17,11 +17,11 @@ Vue.component('nav-menu', {
             this.items = [];
             if (user) {
                 this.items.push(
-                    {title: 'Dashboard', link: 'dashboard', icon: 'chart bar icon'},
-                    {title: 'Ranking', link: 'ranking', icon: 'trophy icon'},
-                    {title: 'Tips', link: 'tips', icon: 'pencil alternate icon'},
-                    {title: 'Schedule', link: 'schedule', icon: 'calendar alternate outline icon'},
-                    {title: 'Rules', link: 'rules', icon: 'book icon'}
+                    {title: 'Dashboard', link: '/dashboard', icon: 'chart bar icon'},
+                    {title: 'Ranking', link: '/ranking', icon: 'trophy icon'},
+                    {title: 'Tips', link: '/tips', icon: 'pencil alternate icon'},
+                    {title: 'Schedule', link: '/schedule', icon: 'calendar alternate outline icon'},
+                    {title: 'Rules', link: '/rules', icon: 'book icon'}
                 );
             }
             this.items.push(
