@@ -4,11 +4,13 @@ import 'lib/semantic/dist/semantic';
 import 'lib/semantic/dist/semantic.min.css';
 import 'jquery'
 import 'rxjs/add/operator/first';
+import vueMoment from 'vue-moment';
 
 // Import main style sheet
 import 'styles/style.scss';
 
 import {router} from 'router';
+Vue.use(vueMoment);
 
 // Import services
 import {apiService} from './services/api';
@@ -22,18 +24,19 @@ if (BUILD_ENV === 'dev') {
 }
 
 // Import components
-import 'components/app';
-import 'components/nav-menu';
 import 'components/alert';
-import 'components/tips';
-import 'components/ranking';
-import 'components/schedule';
-import 'components/rules';
-import 'components/profile';
-import 'components/login';
-import 'components/signup';
+import 'components/app';
 import 'components/dashboard';
 import 'components/impress';
+import 'components/login';
+import 'components/match';
+import 'components/nav-menu';
+import 'components/profile';
+import 'components/ranking';
+import 'components/rules';
+import 'components/schedule';
+import 'components/signup';
+import 'components/tips';
 
 // Bootstrap app
 const app = new Vue({

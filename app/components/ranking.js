@@ -8,6 +8,7 @@ export default {
     },
     template: `
     <div class="ui container ranking-component">
+        <h1>Ranking</h1>
         <table class="ui striped selectable celled definition table">
             <thead>
                 <tr>

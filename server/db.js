@@ -46,8 +46,22 @@ class Database {
 
     getSchedule() {
         const text = `
-            select id, team_a, team_b, time, type, score_a, score_b 
-            from schedule
+            select 
+                s.id, 
+                s.team_a as team_a, 
+                ta.name as team_a_name,
+                ta.country_code as team_a_country_code,
+                ta.group as team_a_group,
+                s.team_b as team_b, 
+                tb.name as team_b_name,
+                tb.country_code as team_b_country_code,
+                tb.group as team_b_group,
+                s.time as time, 
+                s.type as type, 
+                score_a, 
+                score_b 
+            from schedule s, team ta, team tb
+            where s.team_a = ta.id and s.team_b = tb.id
             order by time
         `;
         return this.queryMany({name: 'schedule', text});
