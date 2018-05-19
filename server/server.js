@@ -41,7 +41,10 @@ class Server {
     }
 
     init() {
-        return db.connect().then(() => logger.info('Connected to database'));
+        return Promise.all([
+            db.connect().then(() => logger.info('Connected to database')),
+            this.api.initialize().then(() => logger.info('API initialized'))
+        ]);
     }
 
     start() {

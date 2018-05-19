@@ -87,16 +87,29 @@ class Database {
 
     getUserTips(userId, before = null) {
         let text = `
-            select t.match_id, 
-                ta.id, ta.name, ta.country_code, ta.group,
-                tb.id, tb.name, tb.country_code, tb.group,
-                t.score_a, t.score_b
-            from tip t, schedule s, team ta, team tb
-            where 
-                t.match_id = s.id and 
-                s.team_a = ta.id and 
-                s.team_b = tb.id and
-                t.user_id = $1
+            select 
+                s.id as match_id, 
+                s.team_a, 
+                ta.name as team_a_name,
+                ta.country_code as team_a_country_code,
+                ta.group as team_a_group,
+                s.team_b,
+                tb.name as team_b_name,
+                tb.country_code as team_b_country_code,
+                tb.group as team_b_group,
+                s.time as match_time,
+                s.type as match_type,
+                s.score_a,
+                s.score_b,
+                t.tip_a, 
+                t.tip_b,
+                t.points
+            from schedule s
+            join team ta on s.team_a = ta.id 
+            join team tb on s.team_b = tb.id 
+            join "user" u on u.id = $1
+            left join tip t on t.match_id = s.id and t.user_id = u.id
+            order by s.time
         `;
         let name = 'user-tips';
         const values = [userId];
@@ -106,6 +119,30 @@ class Database {
             values.push(before);
         }
         return this.queryMany({name, text, values})
+    }
+
+    updateUserTips(userId, tips) {
+        const updateStatement = `
+            insert into tip (user_id, match_id, tip_a, tip_b)
+            values ($1, $2, $3, $4)
+            on conflict (user_id, match_id) do update set tip_a = excluded.tip_a, tip_b = excluded.tip_b
+        `;
+        const updateName = 'update-user-tip';
+
+        const deleteStatement = `
+            delete from tip
+            where user_id = $1 and match_id = $2
+        `;
+        const deleteName = 'delete-user-tip';
+
+        return Promise.all(tips.map(({match_id, tip_a, tip_b}) => {
+            if (tip_a === null && tip_b === null) {
+                return this.queryOne({name: deleteName, text: deleteStatement, values: [userId, match_id]});
+            } else {
+                return this.queryOne({name: updateName, text: updateStatement,
+                    values: [userId, match_id, tip_a, tip_b]});
+            }
+        }));
     }
 
     getMatchTips(matchId, userId = null) {

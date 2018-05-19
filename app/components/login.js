@@ -13,11 +13,8 @@ export default {
         login() {
             this.loading = true;
             this.error = false;
-            if (this.errorAlert !== null) {
-                this.alertService.removeAlert(this.errorAlert);
-            }
-            this.userService.login(this.username, this.password).then(() => {
-            }).catch(() => {
+            this.alertService.removeAlert(this.errorAlert);
+            this.userService.login(this.username, this.password).catch(() => {
                 this.error = true;
                 this.errorAlert = this.alertService.addError({text: 'Username and password are not correct.'}, 5000);
             }).finally(() => {

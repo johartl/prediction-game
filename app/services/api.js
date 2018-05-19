@@ -32,6 +32,15 @@ class Api {
             .then(response => response.ok ? response.json() : Promise.reject(response));
     }
 
+    put(uri, body, options = this.getRequestOptions()) {
+        if (typeof body !== 'string') {
+            body = JSON.stringify(body);
+        }
+        options = Object.assign(options, {method: 'PUT', body});
+        return fetch(`${this.apiBase}/${uri}`, options)
+            .then(response => response.ok ? response.json() : Promise.reject(response));
+    }
+
     login({login, password}) {
         return this.post('login', {login, password});
     }
@@ -55,9 +64,26 @@ class Api {
         return this.get('schedule');
     }
 
-    getUser(id) {
-        return this.get(`user/${id}`);
+    getUser(id=null) {
+        if (id) {
+            return this.get(`user/${id }`);
+        } else {
+            return this.get(`user`);
+        }
     }
+
+    getUserTips(id=null) {
+        if (id) {
+            return this.get(`user-tips/${id }`);
+        } else {
+            return this.get(`user-tips`);
+        }
+    }
+
+    updateUserTips(tips) {
+        return this.put('user-tips', tips);
+    }
+
     getMatch(id) {
         return this.get(`match/${id}`);
     }

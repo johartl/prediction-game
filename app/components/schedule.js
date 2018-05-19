@@ -26,7 +26,7 @@ export default {
             <tbody>
             <tr v-for="match in matches">
                 <td>
-                    {{ match.time | moment("hh:mm - D. MMM YYYY") }}
+                    {{ match.time | moment('H:mm - D. MMM YYYY') }}
                 </td>
                 <td>
                     <router-link :to="{name: 'match', params: {id: match.id}}">

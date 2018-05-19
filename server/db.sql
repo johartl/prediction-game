@@ -35,8 +35,8 @@ create table schedule (
 create table tip (
   user_id integer not null references "user" (id) on delete cascade,
   match_id integer not null references schedule (id) on delete cascade,
-  score_a integer not null,
-  score_b integer not null,
+  tip_a integer not null,
+  tip_b integer not null,
   points integer null default null,
 
   primary key (user_id, match_id)
