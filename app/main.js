@@ -27,7 +27,6 @@ if (BUILD_ENV === 'dev') {
 import 'components/alert';
 import 'components/app';
 import 'components/dashboard';
-import 'components/impress';
 import 'components/login';
 import 'components/match';
 import 'components/nav-menu';

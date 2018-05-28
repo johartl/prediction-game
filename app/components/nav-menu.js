@@ -24,9 +24,6 @@ Vue.component('nav-menu', {
                     {title: 'Rules', link: '/rules', icon: 'book icon'}
                 );
             }
-            this.items.push(
-                {title: 'Impress', link: 'impress', icon: 'info icon'}
-            );
         });
     },
     beforeDestroy() {

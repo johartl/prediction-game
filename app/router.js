@@ -11,7 +11,6 @@ import {default as MatchComponent} from 'components/match';
 import {default as LoginComponent} from 'components/login';
 import {default as SignupComponent} from 'components/signup';
 import {default as DashboardComponent} from 'components/dashboard';
-import {default as ImpressComponent} from 'components/impress';
 
 Vue.use(VueRouter);
 
@@ -28,8 +27,7 @@ export const router = new VueRouter({
         {path: '/profile/:login', component: ProfileComponent, name: 'profile', meta: {requiresAuth: true}},
         {path: '/match/:id', component: MatchComponent, name: 'match', meta: {requiresAuth: true}},
         {path: '/login', component: LoginComponent, name: 'login', meta: {requiresNoAuth: true}},
-        {path: '/signup', component: SignupComponent, meta: {requiresNoAuth: true}},
-        {path: '/impress', component: ImpressComponent}
+        {path: '/signup', component: SignupComponent, meta: {requiresNoAuth: true}}
     ]
 });
 
