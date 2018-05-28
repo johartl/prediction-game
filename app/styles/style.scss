@@ -5,6 +5,31 @@ body {
   padding: 30px 0;
 }
 
-.alert-component .ui.message {
-  margin: 10px 0;
+.alert-component {
+  margin-top: 25px;
+
+  .ui.message {
+    margin: 10px 0;
+  }
+
+  .ui.icon.message>.icon:not(.close) {
+    font-size: 1.85em;
+  }
+}
+
+.flag-small {
+  width: 28px;
+  height: 16px;
+  object-fit: cover;
+}
+
+.flag-large {
+  padding: 5px 20px;
+  align-self: center;
+
+  img {
+    width: 100%;
+    object-fit: contain;
+    box-shadow: 0 0 8px #474747;
+  }
 }

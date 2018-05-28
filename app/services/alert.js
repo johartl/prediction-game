@@ -21,15 +21,15 @@ class AlertService {
     }
 
     addInfo(options={}, timeout=null) {
-        return this.addAlert({type: 'info', ...options}, timeout);
+        return this.addAlert({type: 'info', icon: 'info icon', ...options}, timeout);
     }
 
     addError(options={}, timeout=null) {
-        return this.addAlert({type: 'negative', ...options}, timeout);
+        return this.addAlert({type: 'negative', icon: 'times icon', ...options}, timeout);
     }
 
     addSuccess(options={}, timeout=null) {
-        return this.addAlert({type: 'positive', ...options}, timeout);
+        return this.addAlert({type: 'positive', icon: 'check icon', ...options}, timeout);
     }
 
     removeAlert(id) {

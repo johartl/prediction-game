@@ -23,16 +23,10 @@ export default {
                     text: `Your account has been created successfully. You will be logged in automatically in 5 seconds.`
                 }, 5000);
                 setTimeout(() => this.userService.login(login, password), 5000);
-            }).catch(response => {
-                response.json().then(({code, error}) => {
-                    this.alerts.push(this.alertService.addError({
-                        text: `Unable to complete registration: ${error} (${code}).`
-                    }));
-                }).catch(() => {
-                    this.alerts.push(this.alertService.addError({
-                        text: `Unable to complete registration because of unknown error (${response.status}).`
-                    }));
-                });
+            }).catch(({code, error}) => {
+                this.alerts.push(this.alertService.addError({
+                    text: `Unable to complete registration: ${error} (${code}).`
+                }));
             });
         },
         validateSignup() {

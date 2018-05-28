@@ -20,7 +20,7 @@ class Api {
     get(uri, options = this.getRequestOptions()) {
         options = Object.assign(options, {method: 'GET'});
         return fetch(`${this.apiBase}/${uri}`, options)
-            .then(response => response.ok ? response.json() : Promise.reject(response));
+            .then(this.handleResponse.bind(this));
     }
 
     post(uri, body, options = this.getRequestOptions()) {
@@ -29,7 +29,7 @@ class Api {
         }
         options = Object.assign(options, {method: 'POST', body});
         return fetch(`${this.apiBase}/${uri}`, options)
-            .then(response => response.ok ? response.json() : Promise.reject(response));
+            .then(this.handleResponse.bind(this));
     }
 
     put(uri, body, options = this.getRequestOptions()) {
@@ -38,7 +38,16 @@ class Api {
         }
         options = Object.assign(options, {method: 'PUT', body});
         return fetch(`${this.apiBase}/${uri}`, options)
-            .then(response => response.ok ? response.json() : Promise.reject(response));
+            .then(this.handleResponse.bind(this));
+    }
+
+    handleResponse(response) {
+        if (response.ok) {
+            return response.json();
+        }
+        return response.json()
+            .catch(() => ({code: 900, error: 'Unknown error', response}))
+            .then(error => Promise.reject(error));
     }
 
     login({login, password}) {
