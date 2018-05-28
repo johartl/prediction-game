@@ -147,12 +147,10 @@ class Database {
 
     getMatchTips(matchId, userId = null) {
         let text = `
-            select u.id, u.login, t.score_a, t.score_b, t.points
-            from "user" u, tip t, team ta, team tb
+            select u.id as user_id, u.login, t.tip_a, t.tip_b, t.points
+            from "user" u, tip t
             where 
                 t.user_id = u.id and 
-                t.team_a = ta.id and 
-                t.team_b = tb.id and
                 t.match_id = $1
         `;
         let name = 'match-tips';
@@ -167,10 +165,21 @@ class Database {
 
     getMatch(matchId) {
         const text = `
-            select s.id, s.time, s.type, s.score_a, s.score_b,
-                ta.id, ta.name, ta.country_code, 
-                tb.id, tb.name, tb.country_code
-            from schedule s, team ta, team tb
+            select 
+                s.id,
+                s.time, 
+                s.type, 
+                s.score_a, 
+                s.score_b,
+                ta.id as team_a,
+                ta.name as team_a_name,
+                ta.country_code as team_a_country_code, 
+                tb.id as team_b,
+                tb.name as team_b_name,
+                tb.country_code as team_b_country_code
+            from schedule s
+            join team ta on s.team_a = ta.id
+            join team tb on s.team_b = tb.id
             where 
                 s.team_a = ta.id and 
                 s.team_b = tb.id and

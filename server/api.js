@@ -141,16 +141,16 @@ class Api {
 
     getMatch(req, res) {
         const matchId = req.params.id;
-        const now = new Date();
+        const userId = req.auth.id;
         db.getMatch(matchId).then(match => {
             if (!match) {
                 return res.json(null);
             }
-            if (now <= match.time) {
-                return res.json(match);
-            }
+            match.active = new Date() <= match.time;
             db.getMatchTips(matchId).then(tips => {
-                res.json(Object.assign(match, {tips}));
+                match.user_tip = tips.find(tip => tip.user_id === userId);
+                match.tips = match.active ? null : tips;
+                res.json(match);
             });
         });
     }
