@@ -73,11 +73,11 @@ class Api {
         return this.get('schedule');
     }
 
-    getUser(id=null) {
+    getProfile(id=null) {
         if (id) {
-            return this.get(`user/${id }`);
+            return this.get(`profile/${id }`);
         } else {
-            return this.get(`user`);
+            return this.get(`profile`);
         }
     }
 

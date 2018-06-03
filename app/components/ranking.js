@@ -14,7 +14,7 @@ export default {
                 <tr>
                     <th width="100"></th>
                     <th>Member</th>
-                    <th>Score</th>
+                    <th>Points</th>
                 </tr>
             </thead>
             <tbody>
@@ -26,7 +26,7 @@ export default {
                     <router-link :to="{name: 'profile', params: {login: rank.id}}">{{ rank.login }}</router-link>
                 </td>
                 <td>
-                    {{ rank.score }}
+                    {{ rank.points }}
                 </td>
             </tr>
           </tbody>

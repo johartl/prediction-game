@@ -47,7 +47,7 @@ create view ranking as (
     u.id,
     rank() over (partition by u.id order by sum(t.points) desc) rank,
     u.login,
-    sum(coalesce(t.points, 0)) as score
+    sum(coalesce(t.points, 0)) as points
   from
     "user" u
     left join tip t on u.id = t.user_id

@@ -50,10 +50,11 @@ export default {
                     <td>
                         {{ getMatchType(match.type) }}
                     </td>
-                    <td class="center aligned">
-                        <span v-if="match.score_a && match.score_b">
-                            <b>{{ match.score_a }}:{{ match.score_b }}</b>
-                        </span>
+                    <td class="center aligned" v-if="match.score_a !== null && match.score_b !== null">
+                        <b>{{ match.score_a }}:{{ match.score_b }}</b>
+                    </td>
+                    <td class="center aligned disabled" v-if="match.score_a === null || match.score_b === null">
+                        n/a
                     </td>
                 </tr>
             </tbody>

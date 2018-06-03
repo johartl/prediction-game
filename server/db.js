@@ -38,7 +38,7 @@ class Database {
 
     getRanking() {
         const text = `
-            select id, rank, login, score 
+            select id, rank, login, points 
             from ranking
         `;
         return this.queryMany({name: 'ranking', text});
@@ -74,6 +74,16 @@ class Database {
             where id = $1
         `;
         return this.queryOne({name: 'user', text, values: [userId]});
+    }
+
+    getProfile(userId) {
+        const text = `
+            select u.id, u.login, r.rank, r.points
+            from "user" u, ranking r
+            where r.id = u.id
+            and u.id = $1
+        `;
+        return this.queryOne({name: 'profile', text, values: [userId]});
     }
 
     getUserLogin(login) {

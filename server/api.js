@@ -18,9 +18,10 @@ class Api {
         this.router.get('/', this.getApiInfo.bind(this));
         this.router.get('/ranking', auth, this.getRanking.bind(this));
         this.router.get('/schedule', auth, this.getSchedule.bind(this));
-        this.router.get('/user/:id?', auth, this.getUser.bind(this));
-        this.router.get('/user-tips/:id?', auth, this.getUserTips.bind(this));
+        this.router.get('/profile', auth, this.getProfile.bind(this));
+        this.router.get('/profile/:id?', auth, this.getProfile.bind(this));
         this.router.put('/user-tips', auth, this.putUserTips.bind(this));
+        this.router.get('/user-tips/:id?', auth, this.getUserTips.bind(this));
         this.router.get('/match/:id', auth, this.getMatch.bind(this));
         this.router.get('/auth', auth, this.getAuth.bind(this));
 
@@ -77,9 +78,9 @@ class Api {
         db.getSchedule().then(data => res.json(data));
     }
 
-    getUser(req, res) {
+    getProfile(req, res) {
         const userId = req.params.id || req.auth.id;
-        db.getUser(userId).then(user => res.json(user));
+        db.getProfile(userId).then(profile => res.json(profile));
     }
 
     getUserTips(req, res) {

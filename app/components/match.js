@@ -58,86 +58,84 @@ export default {
             <div style="flex: 1 0; max-width: 300px;" class="flag-large">
                 <img v-bind:src="'flags/large/' + match.team_a_country_code + '.png'">
             </div>
-            <div style="flex: 0; align-self: center; font-size: 2rem; padding: 0 10px;">
-                <b>vs.</b>
-            </div>
+            <div style="width: 30px"></div>
             <div style="flex: 1 0; max-width: 300px;" class="flag-large">
                 <img v-bind:src="'flags/large/' + match.team_b_country_code + '.png'">
             </div>
         </div>
         <div style="text-align: center; padding: 8px 0;">
-            <h1>{{ match.team_a_name }} // {{ match.team_b_name }}</h1>
+            <h1>{{ match.team_a_name }} vs. {{ match.team_b_name }}</h1>
         </div>
         
-        <table class="ui striped celled table">
-            <thead>
-                <tr>
-                    <th colspan="2" class="center aligned">
-                        <h4>Match details</h4>
-                    </th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Date and time</td>
-                    <td>{{ match.time | moment('H:mm - D. MMM YYYY') }}</td>
-                </tr>
-                <tr>
-                    <td>Match type</td>
-                    <td>{{ getMatchType(match.type) }}</td>
-                </tr>
-                <tr v-if="match.score_a && match.score_b">
-                    <td>Result</td>
-                    <td>{{ match.score_a }}:{{ match.score_b }}</td>
-                </tr>
-            </tbody>
-        </table>
-        
-        <form v-if="match.active" v-on:submit.prevent="saveTips">
-            <table class="ui celled table">
+        <div style="display: flex; flex-direction: column; align-items: center;">
+            <table class="ui striped celled table" style="max-width: 650px">
                 <thead>
                     <tr>
-                        <th class="center aligned">
-                            <h4>Your tip</h4>
+                        <th colspan="2" class="center aligned">
+                            <h4>Match details</h4>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr class="center aligned">
-                        <div style="padding: 12px 0;">
-                            <span style="font-weight:bold; padding-right: 6px;">
-                                {{ match.team_a_name }}
-                            </span>
-                            <div class="ui input"
-                                 v-bind:class="{error: !isValid(tipA, tipB)}">
-                                <input type="number" v-model="tipA" min="0" max="99"
-                                       style="width: 70px; text-align: center;">
-                            </div>
-                            &nbsp; : &nbsp;
-                            <div class="ui input" 
-                                 v-bind:class="{error: !isValid(tipA, tipB)}">
-                                <input type="number" v-model="tipB" min="0" max="99"
-                                       style="width: 70px; text-align: center;" >
-                            </div>
-                            <span style="font-weight:bold; padding-left: 6px;">
-                                {{ match.team_b_name }}
-                            </span>
-                        </div>
+                    <tr>
+                        <td>Date and time</td>
+                        <td>{{ match.time | moment('H:mm - D. MMM YYYY') }}</td>
+                    </tr>
+                    <tr>
+                        <td>Match type</td>
+                        <td>{{ getMatchType(match.type) }}</td>
+                    </tr>
+                    <tr v-if="match.score_a && match.score_b">
+                        <td>Result</td>
+                        <td>{{ match.score_a }}:{{ match.score_b }}</td>
                     </tr>
                 </tbody>
-                <tfoot>
-                    <tr>
-                        <th class="center aligned">
-                            <button type="submit" class="ui floated labeled icon teal submit button"
-                                    v-bind:class="{'loading': loading, 'negative': error}">
-                                <i class="save icon"></i>
-                                Save tip
-                            </button>
-                        </th>
-                    </tr>
-                </tfoot>
             </table>
-        </form>
+            
+            <form v-if="match.active" v-on:submit.prevent="saveTips" style="display: contents;">
+                <table class="ui celled table" style="max-width: 650px">
+                    <thead>
+                        <tr>
+                            <th class="center aligned">
+                                <h4>Your tip</h4>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="center aligned" v-bind:class="{'warning': !isValid(tipA, tipB)}">
+                            <div style="padding: 12px 0;">
+                                <span style="font-weight:bold; padding-right: 6px;">
+                                    {{ match.team_a_name }}
+                                </span>
+                                <div class="ui input">
+                                    <input type="number" v-model="tipA" min="0" max="99"
+                                           style="width: 70px; text-align: center;">
+                                </div>
+                                &nbsp; : &nbsp;
+                                <div class="ui input">
+                                    <input type="number" v-model="tipB" min="0" max="99"
+                                           style="width: 70px; text-align: center;" >
+                                </div>
+                                <span style="font-weight:bold; padding-left: 6px;">
+                                    {{ match.team_b_name }}
+                                </span>
+                            </div>
+                        </tr>
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <th class="center aligned">
+                                <button type="submit" class="ui floated labeled icon teal submit button"
+                                        v-bind:class="{'loading': loading, 'negative': error}">
+                                    <i class="save icon"></i>
+                                    Save tip
+                                </button>
+                            </th>
+                        </tr>
+                    </tfoot>
+                </table>
+            </form>
+        </div>
         
         <h1>Tips</h1>
         <div v-if="match.tips == null" class="ui message">

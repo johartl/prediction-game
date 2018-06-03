@@ -66,7 +66,7 @@ export default {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="tip in activeTips">
+                    <tr v-for="tip in activeTips" v-bind:class="{'warning': !isValid(tip)}">
                         <td>
                             {{ tip.match_time | moment('H:mm - D. MMM YYYY') }}
                         </td>
@@ -76,14 +76,12 @@ export default {
                             </router-link>
                         </td>
                         <td>
-                            <div class="ui input"
-                                 v-bind:class="{error: !isValid(tip)}">
+                            <div class="ui input">
                                 <input type="number" v-model="tip.tip_a" min="0" max="99"
                                        style="width: 70px; text-align: center;">
                             </div>
                             :
-                            <div class="ui input" 
-                                 v-bind:class="{error: !isValid(tip)}">
+                            <div class="ui input" >
                                 <input type="number" v-model="tip.tip_b" min="0" max="99"
                                        style="width: 70px; text-align: center;" >
                             </div>
@@ -110,8 +108,8 @@ export default {
                 <tr>
                     <th>Time and date</th>
                     <th>Match</th>
-                    <th>Tip</th>
                     <th>Score</th>
+                    <th>Tip</th>
                     <th>Points</th>
                 </tr>
             </thead>
@@ -126,10 +124,10 @@ export default {
                     </router-link>
                 </td>
                 <td>
-                    {{ tip.tip_a }} : {{ tip.tip_b }}
+                    {{ tip.score_a }} : {{ tip.score_b }}
                 </td>
                 <td>
-                    {{ tip.score_a }} : {{ tip.score_b }}
+                    {{ tip.tip_a }} : {{ tip.tip_b }}
                 </td>
                 <td>
                     {{ tip.points }}
