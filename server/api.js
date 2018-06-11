@@ -13,43 +13,50 @@ class Api {
         this.router = express.Router();
         this.matches = new Map();
 
-        // Authentication required
         const auth = this.authenticationMiddleware.bind(this);
-        this.router.get('/', this.getApiInfo.bind(this));
-        this.router.get('/ranking', auth, this.getRanking.bind(this));
-        this.router.get('/schedule', auth, this.getSchedule.bind(this));
-        this.router.get('/profile', auth, this.getProfile.bind(this));
-        this.router.get('/profile/:id?', auth, this.getProfile.bind(this));
-        this.router.put('/user-tips', auth, this.putUserTips.bind(this));
-        this.router.get('/user-tips/:id?', auth, this.getUserTips.bind(this));
-        this.router.get('/match/:id', auth, this.getMatch.bind(this));
-        this.router.get('/auth', auth, this.getAuth.bind(this));
+
+        // Authentication required
+        this.router.get('/ranking', auth(), this.getRanking.bind(this));
+        this.router.get('/schedule', auth(), this.getSchedule.bind(this));
+        this.router.get('/profile', auth(), this.getProfile.bind(this));
+        this.router.get('/profile/:id?', auth(), this.getProfile.bind(this));
+        this.router.put('/user-tips', auth(), this.putUserTips.bind(this));
+        this.router.get('/user-tips/:id?', auth(), this.getUserTips.bind(this));
+        this.router.get('/match/:id', auth(), this.getMatch.bind(this));
+        this.router.get('/auth', auth(), this.getAuth.bind(this));
+
+        // Special authorization required
+        this.router.put('/match/:id/result', auth(['admin']), this.putMatchResult.bind(this));
 
         // No authentication required
+        this.router.get('/', auth(), this.getApiInfo.bind(this));
         this.router.post('/login', this.postLogin.bind(this));
         this.router.post('/register', this.postRegister.bind(this));
-
-        this.loadMatches();
     }
 
     getRouter() {
         return this.router;
     }
 
-    authenticationMiddleware(req, res, next) {
-        const token = req.header('X-AUTH-TOKEN');
-        if (!token) {
-            return res.status(401).json({code: 401, error: 'Not authorized'});
-        }
-        this.verifyToken(token)
-            .then(({id}) => db.getUser(id))
-            .then(user => {
-                req.auth = user;
-                next();
-            })
-            .catch(() => {
-                res.status(401).json({code: 401, error: 'Not authorized'});
-            });
+    authenticationMiddleware(requiredRoles = []) {
+        return (req, res, next) => {
+            const token = req.header('X-AUTH-TOKEN');
+            if (!token) {
+                return res.status(401).json({code: 401, error: 'Not authenticated'});
+            }
+            this.verifyToken(token)
+                .then(({id}) => db.getUser(id))
+                .then(user => {
+                    if (requiredRoles.some(role => !user.roles.includes(role))) {
+                        return res.status(401).json({code: 401, error: `Not authorized (required roles: ${requiredRoles.join(' ')}`});
+                    }
+                    req.auth = user;
+                    next();
+                })
+                .catch(() => {
+                    res.status(401).json({code: 401, error: 'Error in authentication'});
+                });
+        };
     }
 
     initialize() {
@@ -107,7 +114,7 @@ class Api {
             return res.status(400).json({code: 400, error: `Missing body or wrong format`});
         }
         const invalid = tips.some(tip => {
-            if (!tip || typeof(tip) !== 'object') {
+            if (!tip || typeof(tip) !== 'object' || Array.isArray(tip)) {
                 return true;
             }
             const {match_id, tip_a, tip_b} = tip;
@@ -153,6 +160,27 @@ class Api {
                 match.tips = match.active ? null : tips;
                 res.json(match);
             });
+        });
+    }
+
+    putMatchResult(req, res) {
+        const matchId = req.params.id;
+        const result = req.body;
+        if (!result || typeof(result) !== 'object' || Array.isArray(result)) {
+            return res.status(400).json({code: 400, error: `Missing body or wrong format`});
+        }
+        const {score_a, score_b} = result;
+        if (!Number.isInteger(score_a) || !Number.isInteger(score_b)) {
+            return res.status(400).json({code: 400, error: `Missing body or wrong format`});
+        }
+        db.getMatch(matchId).then(match => {
+            if (!match) {
+                return res.status(404).json({code: 404, error: `Unknown match with id '${matchId}'`});
+            } else if (match.time > new Date()) {
+                return res.status(400).json({code: 400, error: `Cannot set result for match before it has started`});
+            }
+            db.updateMatchResult(matchId, score_a, score_b)
+                .then(match => res.json(match));
         });
     }
 

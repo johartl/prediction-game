@@ -69,7 +69,7 @@ class Database {
 
     getUser(userId) {
         const text = `
-            select id, login
+            select id, login, roles
             from "user"
             where id = $1
         `;
@@ -196,6 +196,16 @@ class Database {
                 s.id = $1
         `;
         return this.queryOne({name: 'match', text, values: [matchId]});
+    }
+
+    updateMatchResult(matchId, scoreA, scoreB) {
+        const text = `
+            update schedule
+            set score_a = $1, score_b = $2
+            where id = $3
+            returning *
+        `;
+        return this.queryOne({name: 'update-match-result', values: [scoreA, scoreB, matchId]});
     }
 
     insertUser(login, password) {

@@ -11,6 +11,8 @@ import {default as MatchComponent} from 'components/match';
 import {default as LoginComponent} from 'components/login';
 import {default as SignupComponent} from 'components/signup';
 import {default as DashboardComponent} from 'components/dashboard';
+import {default as AdminComponent} from 'components/admin';
+import {default as NoAuthComponent} from 'components/noauth';
 
 Vue.use(VueRouter);
 
@@ -27,17 +29,25 @@ export const router = new VueRouter({
         {path: '/profile/:login', component: ProfileComponent, name: 'profile', meta: {requiresAuth: true}},
         {path: '/match/:id', component: MatchComponent, name: 'match', meta: {requiresAuth: true}},
         {path: '/login', component: LoginComponent, name: 'login', meta: {requiresNoAuth: true}},
-        {path: '/signup', component: SignupComponent, meta: {requiresNoAuth: true}}
+        {path: '/signup', component: SignupComponent, meta: {requiresNoAuth: true}},
+        {path: '/admin', component: AdminComponent, meta: {requiresAuth: true, requiresRoles: ['admin']}},
+        {path: '/no-authorization', component: NoAuthComponent, name: 'noauth'}
     ]
 });
 
 router.beforeEach((to, from, next) => {
     userService.getAuthPromise().then(user => {
         const loggedIn = !!user;
+        const requiredRoles = to.matched.reduce(((roles, record) => {
+            return roles.concat(record.meta.requiresRoles || []);
+        }), []);
+
         if (!loggedIn && to.matched.some(record => record.meta.requiresAuth)) {
             next({name: 'login'});
         } else if (loggedIn && to.matched.some(record => record.meta.requiresNoAuth)) {
             next({name: 'home'});
+        } else if (requiredRoles.length > 0 && !userService.checkRoles(requiredRoles)) {
+            next({name: 'noauth'});
         } else {
             next();
         }

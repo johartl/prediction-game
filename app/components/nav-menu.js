@@ -23,6 +23,10 @@ Vue.component('nav-menu', {
                     {title: 'Schedule', link: '/schedule', icon: 'calendar alternate outline icon'},
                     {title: 'Rules', link: '/rules', icon: 'book icon'}
                 );
+
+                if (this.userService.isAdmin()) {
+                    this.items.push({title: 'Admin', link: '/admin', icon: 'cog icon'});
+                }
             }
         });
     },

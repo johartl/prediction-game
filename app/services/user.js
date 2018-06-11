@@ -67,6 +67,14 @@ class UserService {
         window.localStorage.removeItem(AUTH_STORAGE_KEY);
         this.authStatusSubject.next(false);
     }
+
+    checkRoles(roles) {
+        return this.isLoggedIn() && !roles.some(role => !this.user.roles.includes(role));
+    }
+
+    isAdmin() {
+        return this.checkRoles(['admin']);
+    }
 }
 
 export const userService = new UserService();

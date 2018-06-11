@@ -9,9 +9,9 @@ class AlertService {
         this.triggerChange();
     }
 
-    addAlert({type, text, header, icon}, timeout=null) {
+    addAlert({type, text, header, icon, closeable=true}, timeout=null) {
         const id = this.globalAlertId++;
-        this.alertMap.set(id, {id, type, text, header, icon});
+        this.alertMap.set(id, {id, type, text, header, icon, closeable});
         if (timeout) {
             const timeoutCall = setTimeout(() => this.removeAlert(id), timeout);
             this.timeoutMap.set(id, timeoutCall);

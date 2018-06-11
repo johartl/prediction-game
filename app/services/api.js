@@ -97,6 +97,10 @@ class Api {
         return this.get(`match/${id}`);
     }
 
+    submitMatchResult(id, scoreA, scoreB) {
+        return this.put(`match/${id}/result`, {score_a: scoreA, score_b: scoreB});
+    }
+
     getRanking() {
         return this.get('ranking');
     }

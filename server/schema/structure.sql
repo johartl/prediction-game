@@ -1,8 +1,11 @@
+create type role_type as enum ('admin');
+
 create table "user" (
   id serial,
   login text not null,
   password text not null,
   created_at timestamp with time zone,
+  roles role_type[] not null default '{}',
 
   primary key (id)
 );
