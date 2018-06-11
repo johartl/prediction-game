@@ -4,6 +4,7 @@ import 'lib/semantic/dist/semantic';
 import 'lib/semantic/dist/semantic.min.css';
 import 'jquery'
 import 'rxjs/add/operator/first';
+import 'rxjs-compat';
 import vueMoment from 'vue-moment';
 
 // Import main style sheet

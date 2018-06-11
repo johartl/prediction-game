@@ -4,10 +4,12 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-const extractStyle = new ExtractTextPlugin({filename: '[name].[md5:contenthash:hex:20].css'});
+const BaseHrefWebpackPlugin = require('base-href-webpack-plugin').BaseHrefWebpackPlugin;
 
 const root = path.resolve(__dirname);
+const baseHref = process.env.BASE_HREF || '/';
+
+const extractStyle = new ExtractTextPlugin({filename: '[name].[md5:contenthash:hex:20].css'});
 
 module.exports = env => {
     const release = !!env.release;
@@ -43,7 +45,7 @@ module.exports = env => {
                 path.resolve(root, '..', 'node_modules')
             ],
             alias: {
-                vue: 'vue/dist/vue.js'
+                vue: release ? 'vue/dist/vue.min.js' : 'vue/dist/vue.js'
             }
         },
         mode: release ? 'production' : 'development',
@@ -56,7 +58,8 @@ module.exports = env => {
             ]),
             extractStyle,
             new HtmlWebpackPlugin({
-                template: path.resolve(root, 'index.html')
+                template: path.resolve(root, 'index.html'),
+                baseUrl: baseHref
             }),
             new webpack.ProvidePlugin({
                 jQuery: 'jquery'
@@ -67,7 +70,8 @@ module.exports = env => {
                     NODE_ENV: JSON.stringify(release ? 'production' : 'development')
                 },
                 BUILD_ENV: JSON.stringify(release ? 'prod' : 'dev')
-            })
+            }),
+            new BaseHrefWebpackPlugin({baseHref})
         ]
     }
 };
