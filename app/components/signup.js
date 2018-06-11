@@ -20,7 +20,7 @@ export default {
 
             this.apiService.register({login, password}).then(() => {
                 this.alertService.addSuccess({
-                    text: `Your account has been created successfully. You will be logged in automatically in 5 seconds.`
+                    text: `Your account has been successfully created. You will be logged in automatically in 5 seconds.`
                 }, 5000);
                 setTimeout(() => this.userService.login(login, password), 5000);
             }).catch(({code, error}) => {

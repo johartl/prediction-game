@@ -13,8 +13,15 @@ export default {
             return !isNaN(tipA) && tipA >= 0 &&
                    !isNaN(tipB) && tipB >= 0;
         },
+        getRowStyle(tip) {
+            if (this.isValid(tip)) {
+                return;
+            }
+            const secondsToMatch = (new Date(tip.match_time) - new Date()) / 1000;
+            return secondsToMatch < 3600 * 12 ? 'error' : 'warning';
+        },
         saveTips() {
-            const tips = this.activeTips.map(tip => {
+            const prediction = this.activeTips.map(tip => {
                 if (this.isValid(tip)) {
                     return {
                         match_id: tip.match_id,
@@ -31,14 +38,14 @@ export default {
             });
             this.loading = true;
             this.error = false;
-            this.apiService.updateUserTips(tips).then(tips => {
+            this.apiService.updateUserTips(prediction).then(tips => {
                 this.setTips(tips);
                 this.alertService.removeAlert(this.alert);
-                this.alert = this.alertService.addSuccess({text: `Successfully saved tips`}, 5000);
+                this.alert = this.alertService.addSuccess({text: `Successfully saved predictions`}, 5000);
             }).catch(({code, error}) => {
                 this.error = true;
                 this.alertService.removeAlert(this.alert);
-                this.alert = this.alertService.addError({text: `Error when saving tips: ${error} (${code})`});
+                this.alert = this.alertService.addError({text: `Error when saving predictions: ${error} (${code})`});
             }).finally(() => {
                 this.loading = false;
             });
@@ -54,7 +61,7 @@ export default {
     },
     template: `
     <div class="ui container tips-component">
-        <h1>Pending tips</h1>
+        <h1>Match predictions</h1>
         
         <form v-on:submit.prevent="saveTips">
             <table class="ui striped selectable celled table">
@@ -62,11 +69,11 @@ export default {
                     <tr>
                         <th>Time and date</th>
                         <th>Match</th>
-                        <th>Tip</th>
+                        <th>Prediction</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="tip in activeTips" v-bind:class="{'warning': !isValid(tip)}">
+                    <tr v-for="tip in activeTips" v-bind:class="getRowStyle(tip)">
                         <td>
                             {{ tip.match_time | moment('H:mm - D. MMM YYYY') }}
                         </td>
@@ -94,7 +101,7 @@ export default {
                             <button type="submit" class="ui floated labeled icon teal submit button"
                                     v-bind:class="{'loading': loading, 'negative': error}">
                                 <i class="save icon"></i>
-                                Save tips
+                                Save predictions
                             </button>
                         </th>
                     </tr>
@@ -102,14 +109,14 @@ export default {
             </table>
         </form>
         
-        <h1>Tip history</h1>
+        <h1>Prediction history</h1>
         <table class="ui striped selectable celled table">
             <thead>
                 <tr>
                     <th>Time and date</th>
                     <th>Match</th>
                     <th>Score</th>
-                    <th>Tip</th>
+                    <th>Prediction</th>
                     <th>Points</th>
                 </tr>
             </thead>

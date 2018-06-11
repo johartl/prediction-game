@@ -46,17 +46,24 @@ create table tip (
 );
 
 create view ranking as (
+  with ranking_tmp as (
+    select
+      u.id,
+      u.login,
+      sum(coalesce(t.points, 0)) as points,
+      sum(case when t.tip_a = s.score_a and t.tip_b = s.score_b and
+        s.score_a <> null and s.score_b <> null then 1 else 0 end) as predictions_correct
+    from
+      "user" u
+      left join tip t on u.id = t.user_id
+      left join schedule s on s.id = t.match_id
+    group by
+      u.id,
+      u.login
+  )
   select
-    u.id,
-    rank() over (partition by u.id order by sum(t.points) desc) rank,
-    u.login,
-    sum(coalesce(t.points, 0)) as points
-  from
-    "user" u
-    left join tip t on u.id = t.user_id
-    left join schedule s on s.id = t.match_id
-  group by
-    u.id,
-    u.login
+    id, login, points, predictions_correct,
+    rank() over (order by points desc, predictions_correct desc) rank
+  from ranking_tmp
   order by rank
 );

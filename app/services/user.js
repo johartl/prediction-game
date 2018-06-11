@@ -69,7 +69,7 @@ class UserService {
     }
 
     checkRoles(roles) {
-        return this.isLoggedIn() && !roles.some(role => !this.user.roles.includes(role));
+        return this.isLoggedIn() && !roles.some(role => !(this.user.roles || []).includes(role));
     }
 
     isAdmin() {

@@ -2,7 +2,7 @@ import Vue from 'vue';
 import VueRouter from 'vue-router';
 
 import {userService} from './services/user';
-import {default as TipsComponent} from 'components/tips';
+import {default as PredictionComponent} from 'components/prediction';
 import {default as RankingComponent} from 'components/ranking';
 import {default as ScheduleComponent} from 'components/schedule';
 import {default as RulesComponent} from 'components/rules';
@@ -21,8 +21,8 @@ export const router = new VueRouter({
     linkExactActiveClass: 'active',
     routes: [
         {path: '/', redirect: {name: 'home'}},
-        {path: '/dashboard', component: DashboardComponent, name: 'home', meta: {requiresAuth: true}},
-        {path: '/tips', component: TipsComponent, meta: {requiresAuth: true}},
+        // {path: '/dashboard', component: DashboardComponent, name: 'home', meta: {requiresAuth: true}},
+        {path: '/prediction', component: PredictionComponent, name: 'home', meta: {requiresAuth: true}},
         {path: '/ranking', component: RankingComponent, meta: {requiresAuth: true}},
         {path: '/schedule', component: ScheduleComponent, meta: {requiresAuth: true}},
         {path: '/rules', component: RulesComponent, meta: {requiresAuth: true}},

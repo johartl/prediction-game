@@ -19,7 +19,7 @@ export default {
         <h1>Profile: {{ user.login }}</h1>
         
         <div style="display: flex; flex-direction: column; align-items: center;">
-            <table class="ui striped celled table" style="max-width: 500px;">
+            <table class="ui striped celled large table" style="max-width: 500px;">
                 <thead>
                     <tr>
                         <th colspan="2" class="center aligned">
@@ -36,18 +36,22 @@ export default {
                         <td>Points</td>
                         <td>{{ user.points }}</td>
                     </tr>
+                    <tr>
+                        <td>Correct predictions</td>
+                        <td>{{ user.predictions_correct }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
         
-        <h1>{{ user.login }}'s tips</h1>
+        <h1>{{ user.login }}'s predictions</h1>
         <table class="ui striped selectable celled table">
             <thead>
                 <tr>
                     <th>Time and date</th>
                     <th>Match</th>
                     <th>Score</th>
-                    <th>Tip</th>
+                    <th>Prediction</th>
                     <th>Points</th>
                 </tr>
             </thead>

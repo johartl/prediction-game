@@ -17,9 +17,9 @@ Vue.component('nav-menu', {
             this.items = [];
             if (user) {
                 this.items.push(
-                    {title: 'Dashboard', link: '/dashboard', icon: 'chart bar icon'},
+                    // {title: 'Dashboard', link: '/dashboard', icon: 'chart bar icon'},
+                    {title: 'Predictions', link: '/prediction', icon: 'pencil alternate icon'},
                     {title: 'Ranking', link: '/ranking', icon: 'trophy icon'},
-                    {title: 'Tips', link: '/tips', icon: 'pencil alternate icon'},
                     {title: 'Schedule', link: '/schedule', icon: 'calendar alternate outline icon'},
                     {title: 'Rules', link: '/rules', icon: 'book icon'}
                 );
@@ -36,8 +36,8 @@ Vue.component('nav-menu', {
     template: `
     <div class="ui huge menu fixed">
         
-        <router-link to="/" tag="div" class="header item" style="cursor: pointer">
-        Tip match 2018
+        <router-link to="/" tag="div" class="header item nav-title" style="cursor: pointer">
+            WM<span class="wmg-easteregg">G</span> 2018
         </router-link>
 
         <router-link v-for="item in items" v-bind:to="item.link" :key="item.link" class="item">

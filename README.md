@@ -1,1 +1,1 @@
-# Tip match
+# Prediction game

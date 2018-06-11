@@ -33,3 +33,15 @@ body {
     box-shadow: 0 0 8px #474747;
   }
 }
+
+.nav-title {
+  .wmg-easteregg {
+    opacity: 0;
+    color: #7b7b7b;
+    padding-right: 1px;
+  }
+
+  &:hover .wmg-easteregg {
+    opacity: 1;
+  }
+}

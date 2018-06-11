@@ -131,7 +131,7 @@ class Api {
         });
 
         if (invalid) {
-            return res.status(400).json({code: 400, error: `Tips have wrong format`});
+            return res.status(400).json({code: 400, error: `Predictions have wrong format`});
         }
         tips = tips.filter(({match_id}) => {
             if (!this.matches.has(match_id)) {
@@ -143,7 +143,7 @@ class Api {
         db.updateUserTips(userId, tips).then(() => {
             this.getUserTips(req, res);
         }).catch(error => {
-            res.status(500).json({code: 500, error: `Unable to update user tips: ${error}`});
+            res.status(500).json({code: 500, error: `Unable to update user predictions: ${error}`});
         });
     }
 

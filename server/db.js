@@ -38,7 +38,7 @@ class Database {
 
     getRanking() {
         const text = `
-            select id, rank, login, points 
+            select id, rank, login, points, predictions_correct 
             from ranking
         `;
         return this.queryMany({name: 'ranking', text});
@@ -78,7 +78,7 @@ class Database {
 
     getProfile(userId) {
         const text = `
-            select u.id, u.login, r.rank, r.points
+            select u.id, u.login, r.rank, r.points, r.predictions_correct
             from "user" u, ranking r
             where r.id = u.id
             and u.id = $1

@@ -35,7 +35,7 @@ import 'components/ranking';
 import 'components/rules';
 import 'components/schedule';
 import 'components/signup';
-import 'components/tips';
+import 'components/prediction';
 
 // Bootstrap app
 const app = new Vue({

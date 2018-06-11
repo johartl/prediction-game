@@ -41,11 +41,11 @@ export default {
             this.error = false;
             this.apiService.updateUserTips([tip]).then(tips => {
                 this.alertService.removeAlert(this.alert);
-                this.alert = this.alertService.addSuccess({text: `Successfully saved tip`}, 5000);
+                this.alert = this.alertService.addSuccess({text: `Successfully saved prediction`}, 5000);
             }).catch(({code, error}) => {
                 this.error = true;
                 this.alertService.removeAlert(this.alert);
-                this.alert = this.alertService.addError({text: `Error when saving tip: ${error} (${code})`}, 5000);
+                this.alert = this.alertService.addError({text: `Error when saving prediction: ${error} (${code})`}, 5000);
             }).finally(() => {
                 this.loading = false;
             });
@@ -68,7 +68,7 @@ export default {
         </div>
         
         <div style="display: flex; flex-direction: column; align-items: center;">
-            <table class="ui striped celled table" style="max-width: 650px">
+            <table class="ui striped celled large table" style="max-width: 650px">
                 <thead>
                     <tr>
                         <th colspan="2" class="center aligned">
@@ -93,11 +93,11 @@ export default {
             </table>
             
             <form v-if="match.active" v-on:submit.prevent="saveTips" style="display: contents;">
-                <table class="ui celled table" style="max-width: 650px">
+                <table class="ui celled large table" style="max-width: 650px">
                     <thead>
                         <tr>
                             <th class="center aligned">
-                                <h4>Your tip</h4>
+                                <h4>Your prediction</h4>
                             </th>
                         </tr>
                     </thead>
@@ -128,7 +128,7 @@ export default {
                                 <button type="submit" class="ui floated labeled icon teal submit button"
                                         v-bind:class="{'loading': loading, 'negative': error}">
                                     <i class="save icon"></i>
-                                    Save tip
+                                    Save prediction
                                 </button>
                             </th>
                         </tr>
@@ -137,16 +137,16 @@ export default {
             </form>
         </div>
         
-        <h1>Tips</h1>
+        <h1>Predictions</h1>
         <div v-if="match.tips == null" class="ui message">
             <i class="info icon"></i>
-            Tips of other members will be displayed after the match has started.
+            Predictions of other players will be displayed after the match has started.
         </div>
         
         <table v-if="match.tips != null" class="ui striped selectable celled table">
             <thead>
                 <tr>
-                    <th>Member</th>
+                    <th>Player</th>
                     <th class="center aligned">Tip</th>
                     <th class="center aligned">Points</th>
                 </tr>
