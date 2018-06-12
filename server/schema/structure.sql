@@ -35,7 +35,7 @@ create table schedule (
   primary key (id)
 );
 
-create table tip (
+create table prediction (
   user_id integer not null references "user" (id) on delete cascade,
   match_id integer not null references schedule (id) on delete cascade,
   tip_a integer not null,
@@ -50,13 +50,13 @@ create view ranking as (
     select
       u.id,
       u.login,
-      sum(coalesce(t.points, 0)) as points,
-      sum(case when t.tip_a = s.score_a and t.tip_b = s.score_b and
+      sum(coalesce(p.points, 0)) as points,
+      sum(case when p.tip_a = s.score_a and p.tip_b = s.score_b and
         s.score_a <> null and s.score_b <> null then 1 else 0 end) as predictions_correct
     from
       "user" u
-      left join tip t on u.id = t.user_id
-      left join schedule s on s.id = t.match_id
+      left join prediction p on u.id = p.user_id
+      left join schedule s on s.id = p.match_id
     group by
       u.id,
       u.login
@@ -66,4 +66,11 @@ create view ranking as (
     rank() over (order by points desc, predictions_correct desc) rank
   from ranking_tmp
   order by rank
+);
+
+create table prediction_champion (
+  user_id integer not null references "user" (id) on delete cascade,
+  team_id integer not null references team (id) on delete cascade,
+
+  primary key (user_id)
 );

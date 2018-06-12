@@ -20,18 +20,19 @@ class Api {
         this.router.get('/schedule', auth(), this.getSchedule.bind(this));
         this.router.get('/profile', auth(), this.getProfile.bind(this));
         this.router.get('/profile/:id?', auth(), this.getProfile.bind(this));
-        this.router.put('/user-tips', auth(), this.putUserTips.bind(this));
-        this.router.get('/user-tips/:id?', auth(), this.getUserTips.bind(this));
+        this.router.put('/predictions', auth(), this.savePredictions.bind(this));
+        this.router.get('/predictions/:id?', auth(), this.getPredictions.bind(this));
         this.router.get('/match/:id', auth(), this.getMatch.bind(this));
         this.router.get('/auth', auth(), this.getAuth.bind(this));
+        this.router.get('/teams', auth(), this.getTeams.bind(this));
 
         // Special authorization required
-        this.router.put('/match/:id/result', auth(['admin']), this.putMatchResult.bind(this));
+        this.router.put('/match/:id/result', auth(['admin']), this.saveMatchResult.bind(this));
 
         // No authentication required
         this.router.get('/', auth(), this.getApiInfo.bind(this));
-        this.router.post('/login', this.postLogin.bind(this));
-        this.router.post('/register', this.postRegister.bind(this));
+        this.router.post('/login', this.login.bind(this));
+        this.router.post('/register', this.register.bind(this));
     }
 
     getRouter() {
@@ -68,6 +69,7 @@ class Api {
             db.getSchedule().then(matches => {
                 this.matches.clear();
                 matches.forEach(match => this.matches.set(match.id, match));
+                this.firstMatchTime = Math.min(...matches.map(match => match.time));
                 resolve();
             });
         });
@@ -90,61 +92,96 @@ class Api {
         db.getProfile(userId).then(profile => res.json(profile));
     }
 
-    getUserTips(req, res) {
+    getPredictions(req, res) {
         const userId = req.params.id || req.auth.id;
-        const timeLimit = req.auth.id === userId ? null : new Date();
-        Promise.all([
+        const now = new Date();
+        const championPredictionActive = now < this.firstMatchTime;
+        const timeLimit = req.auth.id === userId ? null : now;
+
+        const promises = [
             db.getUser(userId),
-            db.getUserTips(userId, timeLimit)
-        ]).then(([user, tips]) => {
+            db.getMatchPredictionsByUser(userId, timeLimit)
+        ];
+        if (req.auth.id === userId || !championPredictionActive) {
+            promises.push(db.getChampionPrediction(userId));
+        }
+
+        Promise.all(promises).then(([user, matchPredictions, championPrediction=null]) => {
             if (!user) {
                 return res.json(null);
             }
-            tips.forEach(tip => {
-                tip.active = new Date() < tip.match_time;
+            matchPredictions.forEach(prediction => {
+                prediction.active = new Date() < prediction.match_time;
             });
-            res.json(tips);
+            res.json({
+                matches: matchPredictions,
+                champion: championPrediction,
+                active: {
+                    champion: championPredictionActive
+                }
+            });
         });
     }
 
-    putUserTips(req, res) {
+    savePredictions(req, res) {
         const userId = req.auth.id;
-        let tips = req.body;
-        if (!Array.isArray(tips)) {
+        if (!req.body || typeof(req.body) !== 'object' || Array.isArray(req.body)) {
             return res.status(400).json({code: 400, error: `Missing body or wrong format`});
         }
-        const invalid = tips.some(tip => {
-            if (!tip || typeof(tip) !== 'object' || Array.isArray(tip)) {
-                return true;
-            }
-            const {match_id, tip_a, tip_b} = tip;
-            if (!Number.isInteger(match_id)) {
-                return true;
-            }
-            if (tip_a === null && tip_b === null) {
-                return false;
-            }
-            if (Number.isInteger(tip_a) && tip_a >= 0 && Number.isInteger(tip_b) && tip_b >= 0) {
-                return false;
-            }
-            return true;
-        });
-
-        if (invalid) {
-            return res.status(400).json({code: 400, error: `Predictions have wrong format`});
+        const {champion, matches} = req.body;
+        if (matches && matches.some(match => this.__validateMatchPrediction(match))) {
+            return res.status(400).json({code: 400, error: `Wrong format of match predictions`});
         }
-        tips = tips.filter(({match_id}) => {
+        if (champion && !Number.isInteger(champion)) {
+            return res.status(400).json({code: 400, error: `Wrong format of champion prediction`});
+        }
+        const promises = [];
+        if (matches) {
+            promises.push(this.__saveMatchPredictions(userId, matches));
+        }
+        if (champion) {
+            promises.push(this.__saveChampionPrediction(userId, champion));
+        }
+        return Promise.all(promises).then(() => {
+            this.getPredictions(req, res);
+        }).catch(error => {
+            res.status(500).json({code: 500, error: `Error when updating user predictions: ${error}`});
+        });
+    }
+
+    __saveMatchPredictions(userId, matches) {
+        matches = matches.filter(({match_id}) => {
             if (!this.matches.has(match_id)) {
                 return false;
             }
             const match = this.matches.get(match_id);
             return new Date() < match.time;
         });
-        db.updateUserTips(userId, tips).then(() => {
-            this.getUserTips(req, res);
-        }).catch(error => {
-            res.status(500).json({code: 500, error: `Unable to update user predictions: ${error}`});
-        });
+        return db.updateMatchPredictions(userId, matches);
+    }
+
+    __saveChampionPrediction(userId, teamId) {
+        if (new Date() > this.firstMatchTime) {
+            return Promise.resolve();
+        }
+        return db.updateChampionPrediction(userId, teamId);
+    }
+
+    __validateMatchPrediction(prediction) {
+        if (!prediction || typeof(prediction) !== 'object' || Array.isArray(prediction)) {
+            return true;
+        }
+        const {match_id, tip_a, tip_b} = prediction;
+        if (!Number.isInteger(match_id)) {
+            return true;
+        }
+        if (tip_a === null && tip_b === null) {
+            return false;
+        }
+        if (Number.isInteger(tip_a) && tip_a >= 0 && Number.isInteger(tip_b) && tip_b >= 0) {
+            return false;
+        }
+        return true;
     }
 
     getMatch(req, res) {
@@ -155,15 +192,15 @@ class Api {
                 return res.json(null);
             }
             match.active = new Date() <= match.time;
-            db.getMatchTips(matchId).then(tips => {
-                match.user_tip = tips.find(tip => tip.user_id === userId);
-                match.tips = match.active ? null : tips;
+            db.getMatchPredictionsByMatch(matchId).then(predictions => {
+                match.user_prediction = predictions.find(tip => tip.user_id === userId);
+                match.predictions = match.active ? null : predictions;
                 res.json(match);
             });
         });
     }
 
-    putMatchResult(req, res) {
+    saveMatchResult(req, res) {
         const matchId = req.params.id;
         const result = req.body;
         if (!result || typeof(result) !== 'object' || Array.isArray(result)) {
@@ -184,7 +221,13 @@ class Api {
         });
     }
 
-    postRegister(req, res) {
+    getTeams(req, res) {
+        db.getTeams().then(teams => {
+            res.json(teams);
+        });
+    }
+
+    register(req, res) {
         const login = req.body.login;
         const password = req.body.password;
         if (!login || !password) {
@@ -209,7 +252,7 @@ class Api {
         });
     }
 
-    postLogin(req, res) {
+    login(req, res) {
         const login = req.body.login;
         const password = req.body.password;
 

@@ -95,7 +95,7 @@ class Database {
         return this.queryOne({name: 'user-login', text, values: [login]});
     }
 
-    getUserTips(userId, before = null) {
+    getMatchPredictionsByUser(userId, before = null) {
         let text = `
             select 
                 s.id as match_id, 
@@ -111,39 +111,39 @@ class Database {
                 s.type as match_type,
                 s.score_a,
                 s.score_b,
-                t.tip_a, 
-                t.tip_b,
-                t.points
+                p.tip_a, 
+                p.tip_b,
+                p.points
             from schedule s
             join team ta on s.team_a = ta.id 
             join team tb on s.team_b = tb.id 
             join "user" u on u.id = $1
-            left join tip t on t.match_id = s.id and t.user_id = u.id
+            left join prediction p on p.match_id = s.id and p.user_id = u.id
             order by s.time
         `;
-        let name = 'user-tips';
+        let name = 'match-predictions-by-user';
         const values = [userId];
         if (before) {
-            name = 'user-tips-before';
+            name = 'match-predictions-by-user-before';
             text += 'and s.time <= $2';
             values.push(before);
         }
         return this.queryMany({name, text, values})
     }
 
-    updateUserTips(userId, tips) {
+    updateMatchPredictions(userId, tips) {
         const updateStatement = `
-            insert into tip (user_id, match_id, tip_a, tip_b)
+            insert into prediction (user_id, match_id, tip_a, tip_b)
             values ($1, $2, $3, $4)
             on conflict (user_id, match_id) do update set tip_a = excluded.tip_a, tip_b = excluded.tip_b
         `;
         const updateName = 'update-user-tip';
 
         const deleteStatement = `
-            delete from tip
+            delete from prediction
             where user_id = $1 and match_id = $2
         `;
-        const deleteName = 'delete-user-tip';
+        const deleteName = 'delete-user-prediction';
 
         return Promise.all(tips.map(({match_id, tip_a, tip_b}) => {
             if (tip_a === null && tip_b === null) {
@@ -155,18 +155,36 @@ class Database {
         }));
     }
 
-    getMatchTips(matchId, userId = null) {
+    getChampionPrediction(userId) {
         let text = `
-            select u.id as user_id, u.login, t.tip_a, t.tip_b, t.points
-            from "user" u, tip t
-            where 
-                t.user_id = u.id and 
-                t.match_id = $1
+            select t.id, t.name
+            from prediction_champion p, team t 
+            where p.team_id = t.id and user_id = $1
         `;
-        let name = 'match-tips';
+        return this.queryOne({name: 'champion-prediction', text, values: [userId]});
+    }
+
+    updateChampionPrediction(userId, teamId) {
+        let text = `
+            insert into prediction_champion (user_id, team_id)
+            values ($1, $2)
+            on conflict (user_id) do update set team_id = excluded.team_id
+        `;
+        return this.queryOne({name: 'update-champion-prediction', text, values: [userId, teamId]});
+    }
+
+    getMatchPredictionsByMatch(matchId, userId = null) {
+        let text = `
+            select u.id as user_id, u.login, p.tip_a, p.tip_b, p.points
+            from "user" u, prediction p
+            where 
+                p.user_id = u.id and 
+                p.match_id = $1
+        `;
+        let name = 'match-predictions-by-match';
         const values = [matchId];
         if (userId) {
-            name = 'match-tips-user';
+            name = 'match-predictions-by-match-and-user';
             text += 'and u.id = $2';
             values.push(userId);
         }
@@ -215,6 +233,14 @@ class Database {
             returning id
         `;
         return this.queryOne({name: 'insert-user', text, values: [login, password]}).then(user => user.id);
+    }
+
+    getTeams() {
+        const text = `
+            select id, name, country_code, "group"
+            from team
+        `;
+        return this.queryMany({name: 'team', text});
     }
 }
 

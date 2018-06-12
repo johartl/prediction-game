@@ -24,7 +24,7 @@ class Api {
     }
 
     post(uri, body, options = this.getRequestOptions()) {
-        if (typeof body !== 'string') {
+        if (typeof(body) !== 'string') {
             body = JSON.stringify(body);
         }
         options = Object.assign(options, {method: 'POST', body});
@@ -33,7 +33,7 @@ class Api {
     }
 
     put(uri, body, options = this.getRequestOptions()) {
-        if (typeof body !== 'string') {
+        if (typeof(body) !== 'string') {
             body = JSON.stringify(body);
         }
         options = Object.assign(options, {method: 'PUT', body});
@@ -81,16 +81,16 @@ class Api {
         }
     }
 
-    getUserTips(id=null) {
+    getPredictions(id=null) {
         if (id) {
-            return this.get(`user-tips/${id }`);
+            return this.get(`predictions/${id }`);
         } else {
-            return this.get(`user-tips`);
+            return this.get(`predictions`);
         }
     }
 
-    updateUserTips(tips) {
-        return this.put('user-tips', tips);
+    updatePredictions(predictions) {
+        return this.put('predictions', predictions);
     }
 
     getMatch(id) {
@@ -103,6 +103,10 @@ class Api {
 
     getRanking() {
         return this.get('ranking');
+    }
+
+    getTeams() {
+        return this.get('teams');
     }
 }
 

@@ -14,8 +14,8 @@ export default {
         const matchId = this.$route.params.id;
         this.apiService.getMatch(matchId).then(match => {
             this.match = match;
-            this.tipA = match.user_tip ? match.user_tip.tip_a : null;
-            this.tipB = match.user_tip ? match.user_tip.tip_b : null;
+            this.tipA = match.user_prediction ? match.user_prediction.tip_a : null;
+            this.tipB = match.user_prediction ? match.user_prediction.tip_b : null;
         });
     },
     methods: {
@@ -26,20 +26,23 @@ export default {
             return !isNaN(tipA) && tipA >= 0 &&
                 !isNaN(tipB) && tipB >= 0;
         },
-        saveTips() {
-            const tip = {
+        savePredictions() {
+            const prediction = {
                 match_id: this.match.id,
                 tip_a: null,
                 tip_b: null
             };
             if (this.isValid(this.tipA, this.tipB)) {
-                tip.tip_a = parseInt(this.tipA);
-                tip.tip_b = parseInt(this.tipB);
+                prediction.tip_a = parseInt(this.tipA);
+                prediction.tip_b = parseInt(this.tipB);
             }
+            const predictions = {
+                matches: [prediction]
+            };
 
             this.loading = true;
             this.error = false;
-            this.apiService.updateUserTips([tip]).then(tips => {
+            this.apiService.updatePredictions(predictions).then(updatedPredictions => {
                 this.alertService.removeAlert(this.alert);
                 this.alert = this.alertService.addSuccess({text: `Successfully saved prediction`}, 5000);
             }).catch(({code, error}) => {
@@ -68,7 +71,7 @@ export default {
         </div>
         
         <div style="display: flex; flex-direction: column; align-items: center;">
-            <table class="ui striped celled large table" style="max-width: 650px">
+            <table class="ui padded striped celled large table" style="max-width: 650px">
                 <thead>
                     <tr>
                         <th colspan="2" class="center aligned">
@@ -78,22 +81,22 @@ export default {
                 </thead>
                 <tbody>
                     <tr>
-                        <td>Date and time</td>
+                        <td><strong>Date and time</strong></td>
                         <td>{{ match.time | moment('H:mm - D. MMM YYYY') }}</td>
                     </tr>
                     <tr>
-                        <td>Match type</td>
+                        <td><strong>Match type</strong></td>
                         <td>{{ getMatchType(match.type) }}</td>
                     </tr>
                     <tr v-if="match.score_a && match.score_b">
-                        <td>Result</td>
+                        <td><strong>Result</strong></td>
                         <td>{{ match.score_a }}:{{ match.score_b }}</td>
                     </tr>
                 </tbody>
             </table>
             
-            <form v-if="match.active" v-on:submit.prevent="saveTips" style="display: contents;">
-                <table class="ui celled large table" style="max-width: 650px">
+            <form v-if="match.active" v-on:submit.prevent="savePredictions" style="display: contents;">
+                <table class="ui padded celled large table" style="max-width: 650px">
                     <thead>
                         <tr>
                             <th class="center aligned">
@@ -138,33 +141,37 @@ export default {
         </div>
         
         <h1>Predictions</h1>
-        <div v-if="match.tips == null" class="ui message">
+        <div v-if="match.predictions == null" class="ui message">
             <i class="info icon"></i>
             Predictions of other players will be displayed after the match has started.
         </div>
         
-        <table v-if="match.tips != null" class="ui striped selectable celled table">
+        <table v-if="match.predictions != null" class="ui striped selectable celled table">
             <thead>
                 <tr>
                     <th>Player</th>
-                    <th class="center aligned">Tip</th>
+                    <th class="center aligned">Prediction</th>
                     <th class="center aligned">Points</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="tip in match.tips">
+                <tr v-for="prediction in match.predictions">
                     <td>
-                        <router-link :to="{name: 'profile', params: {login: tip.user_id}}">
-                            {{ tip.login }}
+                        <router-link :to="{name: 'profile', params: {login: prediction.user_id}}">
+                            {{ prediction.login }}
                         </router-link>
                     </td>
-                    <td class="center aligned">
-                        <span v-if="tip.tip_a && tip.tip_b">
-                            <b>{{ tip.tip_a }} : {{ tip.tip_b }}</b>
-                        </span>
+                    <td v-if="prediction.tip_a !== null && prediction.tip_b !== null" class="center aligned">
+                        {{ prediction.tip_a }} : {{ prediction.tip_b }}
                     </td>
-                    <td class="center aligned">
-                        {{ tip.points }}
+                    <td v-if="prediction.tip_a === null || prediction.tip_b === null" class="center aligned disabled">
+                        n/a
+                    </td>
+                    <td v-if="prediction.points !== null" class="center aligned">
+                        {{ prediction.points }}
+                    </td>
+                    <td v-if="prediction.points === null" class="center aligned disabled">
+                        n/a
                     </td>
                 </tr>
             </tbody>
