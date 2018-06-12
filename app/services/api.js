@@ -1,6 +1,6 @@
 class Api {
     constructor() {
-        this.apiBase = `${window.location.origin}/api`;
+        this.apiBase = 'api';
         this.authToken = null;
     }
 
