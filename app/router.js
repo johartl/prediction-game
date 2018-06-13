@@ -26,7 +26,7 @@ export const router = new VueRouter({
         {path: '/ranking', component: RankingComponent, meta: {requiresAuth: true}},
         {path: '/schedule', component: ScheduleComponent, meta: {requiresAuth: true}},
         {path: '/rules', component: RulesComponent, meta: {requiresAuth: true}},
-        {path: '/profile/:login', component: ProfileComponent, name: 'profile', meta: {requiresAuth: true}},
+        {path: '/profile/:id', component: ProfileComponent, name: 'profile', meta: {requiresAuth: true}},
         {path: '/match/:id', component: MatchComponent, name: 'match', meta: {requiresAuth: true}},
         {path: '/login', component: LoginComponent, name: 'login', meta: {requiresNoAuth: true}},
         {path: '/signup', component: SignupComponent, meta: {requiresNoAuth: true}},

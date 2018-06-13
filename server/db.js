@@ -96,6 +96,8 @@ class Database {
     }
 
     getMatchPredictionsByUser(userId, before = null) {
+        let name = 'match-predictions-by-user';
+        const values = [userId];
         let text = `
             select 
                 s.id as match_id, 
@@ -119,15 +121,13 @@ class Database {
             join team tb on s.team_b = tb.id 
             join "user" u on u.id = $1
             left join prediction p on p.match_id = s.id and p.user_id = u.id
-            order by s.time
         `;
-        let name = 'match-predictions-by-user';
-        const values = [userId];
         if (before) {
             name = 'match-predictions-by-user-before';
-            text += 'and s.time <= $2';
+            text += 'where s.time <= $2';
             values.push(before);
         }
+        text += `order by s.time`;
         return this.queryMany({name, text, values})
     }
 

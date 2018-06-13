@@ -26,7 +26,7 @@ export default {
                     #{{ rank.rank }}
                 </td>
                 <td>
-                    <router-link :to="{name: 'profile', params: {login: rank.id}}">{{ rank.login }}</router-link>
+                    <router-link :to="{name: 'profile', params: {id: rank.id}}">{{ rank.login }}</router-link>
                 </td>
                 <td>
                     {{ rank.predictions_correct }}

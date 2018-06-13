@@ -157,7 +157,7 @@ export default {
             <tbody>
                 <tr v-for="prediction in match.predictions">
                     <td>
-                        <router-link :to="{name: 'profile', params: {login: prediction.user_id}}">
+                        <router-link :to="{name: 'profile', params: {id: prediction.user_id}}">
                             {{ prediction.login }}
                         </router-link>
                     </td>
