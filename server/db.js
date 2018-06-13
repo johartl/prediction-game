@@ -95,6 +95,26 @@ class Database {
         return this.queryOne({name: 'user-login', text, values: [login]});
     }
 
+    getPredictions() {
+        const text = `
+            select 
+                p.match_id, p.user_id,
+                p.tip_a, p.tip_b, 
+                s.score_a, s.score_b
+            from prediction p, schedule s
+            where p.match_id = s.id
+        `;
+        return this.queryMany({name: 'predictions', text});
+    }
+
+    updatePredictionPoints(userId, matchId, points) {
+        const text = `
+            update prediction set points = $1 
+            where user_id = $2 and match_id = $3
+        `;
+        return this.queryOne({name: 'update-prediction-points', text, values: [points, userId, matchId]});
+    }
+
     getMatchPredictionsByUser(userId, before = null) {
         let name = 'match-predictions-by-user';
         const values = [userId];
@@ -223,7 +243,7 @@ class Database {
             where id = $3
             returning *
         `;
-        return this.queryOne({name: 'update-match-result', values: [scoreA, scoreB, matchId]});
+        return this.queryOne({name: 'update-match-result', text, values: [scoreA, scoreB, matchId]});
     }
 
     insertUser(login, password) {

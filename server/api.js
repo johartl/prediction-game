@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 
 const config = require('./config');
 const db = require('./db');
+const pointDistributor = require('./point-distributor');
 
 const SALT_ROUNDS = 10;
 
@@ -84,7 +85,12 @@ class Api {
     }
 
     getSchedule(req, res) {
-        db.getSchedule().then(data => res.json(data));
+        db.getSchedule().then(matches => {
+            matches.forEach(match => {
+                match.active = new Date() < match.time;
+            });
+            res.json(matches);
+        });
     }
 
     getProfile(req, res) {
@@ -207,7 +213,8 @@ class Api {
             return res.status(400).json({code: 400, error: `Missing body or wrong format`});
         }
         const {score_a, score_b} = result;
-        if (!Number.isInteger(score_a) || !Number.isInteger(score_b)) {
+        if (score_a !== null && score_b !== null &&
+            (!Number.isInteger(score_a) || !Number.isInteger(score_b))) {
             return res.status(400).json({code: 400, error: `Missing body or wrong format`});
         }
         db.getMatch(matchId).then(match => {
@@ -216,8 +223,11 @@ class Api {
             } else if (match.time > new Date()) {
                 return res.status(400).json({code: 400, error: `Cannot set result for match before it has started`});
             }
-            db.updateMatchResult(matchId, score_a, score_b)
-                .then(match => res.json(match));
+            db.updateMatchResult(matchId, score_a, score_b).then(match => {
+                pointDistributor.run()
+                    .then(() => res.json(match))
+                    .catch(error => res.status(500).json({code: 500, error: `Error while distributing points: ${error}`}));
+            }).catch(error => res.status(500).json({code: 500, error: `Unable to update match result: ${error}`}));
         });
     }
 

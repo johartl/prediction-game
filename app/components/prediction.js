@@ -10,6 +10,11 @@ export default {
         loading: false,
         error: false
     }),
+    mounted() {
+        this.alert = null;
+        this.apiService.getPredictions().then(predictions => this.setPredictions(predictions));
+        this.apiService.getTeams().then(teams => this.teams = teams);
+    },
     methods: {
         isValid(prediction) {
             const tipA = parseInt(prediction.tip_a);
@@ -68,11 +73,6 @@ export default {
                 this.championPredictionSelect = this.championPrediction.id;
             }
         }
-    },
-    mounted() {
-        this.alert = null;
-        this.apiService.getPredictions().then(predictions => this.setPredictions(predictions));
-        this.apiService.getTeams().then(teams => this.teams = teams);
     },
     template: `
     <div class="ui container predictions-component">

@@ -21,7 +21,7 @@ export default {
                 </tr>
                 <tr>
                     <td>Draw</td>
-                    <td><strong>1</strong> point</td>
+                    <td><strong>2</strong> point</td>
                     <td>-</td>
                     <td><strong>4</strong> points</td>
                 </tr>
