@@ -6,7 +6,6 @@ const logger = require('./logger');
 class Database {
     constructor() {
         this.client = new Client(config.dbConnection);
-
     }
 
     connect() {

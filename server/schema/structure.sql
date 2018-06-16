@@ -52,7 +52,7 @@ create view ranking as (
       u.login,
       sum(coalesce(p.points, 0)) as points,
       sum(case when p.tip_a = s.score_a and p.tip_b = s.score_b and
-        s.score_a <> null and s.score_b <> null then 1 else 0 end) as predictions_correct
+        s.score_a is not null and s.score_b is not null then 1 else 0 end) as predictions_correct
     from
       "user" u
       left join prediction p on u.id = p.user_id
