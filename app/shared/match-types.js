@@ -3,7 +3,8 @@ export const matchTypes = {
     'final-8': 'Round of sixteen',
     'final-4': 'Quarterfinal',
     'final-2': 'Semifinal',
-    'final': 'Final'
+    'final': 'Final',
+    'third-place-match': '3rd place match'
 };
 
 export const getMatchType = type => matchTypes[type] || 'Unknown';

@@ -21,7 +21,7 @@ create table team (
   primary key (id)
 );
 
-create type match_type as enum ('group-phase', 'final-8', 'final-4', 'final-2', 'final');
+create type match_type as enum ('group-phase', 'final-8', 'final-4', 'final-2', 'final', 'third-place-match');
 
 create table schedule (
   id serial,
