@@ -50,16 +50,18 @@ create view ranking as (
     select
       u.id,
       u.login,
-      sum(coalesce(p.points, 0)) as points,
+      sum(coalesce(p.points, 0)) + coalesce(pc.points, 0) as points,
       sum(case when p.tip_a = s.score_a and p.tip_b = s.score_b and
         s.score_a is not null and s.score_b is not null then 1 else 0 end) as predictions_correct
     from
       "user" u
       left join prediction p on u.id = p.user_id
+      left join prediction_champion pc on u.id = pc.user_id
       left join schedule s on s.id = p.match_id
     group by
       u.id,
-      u.login
+      u.login,
+      pc.points
   )
   select
     id, login, points, predictions_correct,
@@ -71,6 +73,7 @@ create view ranking as (
 create table prediction_champion (
   user_id integer not null references "user" (id) on delete cascade,
   team_id integer not null references team (id) on delete cascade,
+  points integer null default null,
 
   primary key (user_id)
 );
